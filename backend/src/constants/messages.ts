@@ -7,7 +7,7 @@ export const Messages = {
   ACTIVITY_DELETED: 'Activity removed from carbon ledger',
   GOAL_CREATED: 'Goal created and progress linked to activities',
   GOAL_UPDATED: 'Goal status updated',
-  FACTOR_CREATED: 'Carbon factor stored for region matching',
+  FACTOR_CREATED: 'Carbon factor version stored and effective from the selected date',
   AUDIT_LOGGED: 'Audit log captured',
   BACKEND_SHARED: 'Shared backend/frontend copy used by coupled message constants'
 } as const;

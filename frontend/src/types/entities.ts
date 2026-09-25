@@ -18,6 +18,8 @@ export interface CarbonFactor {
   factorValue: string;
   unit: string;
   region: string;
+  effectiveFrom: string;
+  effectiveTo?: string | null;
   updatedAt: string;
 }
 

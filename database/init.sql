@@ -30,8 +30,11 @@ CREATE TABLE IF NOT EXISTS carbon_factors (
   factor_value DECIMAL(12,4) NOT NULL,
   unit VARCHAR(32) NOT NULL,
   region VARCHAR(64) NOT NULL,
+  effective_from DATE NOT NULL,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  KEY idx_factor_category_region (category, region)
+  UNIQUE KEY uk_factor_version (category, sub_type, region, effective_from),
+  KEY idx_factor_category_region (category, region),
+  KEY idx_factor_match (category, sub_type, region, effective_from)
 );
 
 CREATE TABLE IF NOT EXISTS activities (
@@ -88,18 +91,19 @@ INSERT IGNORE INTO users (id, username, email, password_hash, avatar, region) VA
 INSERT IGNORE INTO user_roles (user_id, role_id) VALUES
   (1, 1), (1, 2), (2, 2), (3, 2);
 
-INSERT IGNORE INTO carbon_factors (id, category, sub_type, factor_value, unit, region) VALUES
-  (1, 'transport', 'metro', 0.0520, 'km', 'Shanghai'),
-  (2, 'transport', 'gasoline-car', 0.1920, 'km', 'Shanghai'),
-  (3, 'energy', 'electricity', 0.5700, 'kWh', 'Shanghai'),
-  (4, 'food', 'beef-meal', 6.2000, 'meal', 'Shanghai'),
-  (5, 'shopping', 'parcel', 1.1000, 'item', 'Shanghai'),
-  (6, 'energy', 'electricity', 0.5300, 'kWh', 'Hangzhou'),
-  (7, 'transport', 'bus', 0.0890, 'km', 'Beijing');
+INSERT IGNORE INTO carbon_factors (id, category, sub_type, factor_value, unit, region, effective_from) VALUES
+  (1, 'transport', 'metro', 0.0520, 'km', 'Shanghai', '2020-01-01'),
+  (2, 'transport', 'gasoline-car', 0.1920, 'km', 'Shanghai', '2020-01-01'),
+  (3, 'energy', 'electricity', 0.5700, 'kWh', 'Shanghai', '2020-01-01'),
+  (4, 'food', 'beef-meal', 6.2000, 'meal', 'Shanghai', '2020-01-01'),
+  (5, 'shopping', 'parcel', 1.1000, 'item', 'Shanghai', '2020-01-01'),
+  (6, 'energy', 'electricity', 0.5300, 'kWh', 'Hangzhou', '2020-01-01'),
+  (7, 'transport', 'bus', 0.0890, 'km', 'Beijing', '2020-01-01'),
+  (8, 'energy', 'electricity', 0.6100, 'kWh', 'Shanghai', '2026-01-01');
 
 INSERT IGNORE INTO activities (id, user_id, factor_id, category, sub_type, amount, unit, carbon_value, record_date, note) VALUES
   (1, 1, 1, 'transport', 'metro', 22.50, 'km', 1.17, CURRENT_DATE(), 'Morning commute'),
-  (2, 1, 3, 'energy', 'electricity', 18.00, 'kWh', 10.26, DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY), 'Office lighting'),
+  (2, 1, 8, 'energy', 'electricity', 18.00, 'kWh', 10.98, DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY), 'Office lighting, 2026 grid factor'),
   (3, 1, 4, 'food', 'beef-meal', 1.00, 'meal', 6.20, DATE_SUB(CURRENT_DATE(), INTERVAL 2 DAY), 'Client lunch'),
   (4, 2, 6, 'energy', 'electricity', 26.00, 'kWh', 13.78, DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY), 'Store energy'),
   (5, 3, 7, 'transport', 'bus', 18.00, 'km', 1.60, CURRENT_DATE(), 'Supplier visit');

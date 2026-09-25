@@ -26,6 +26,7 @@ docker compose down
 - 用户注册、登录、JWT 认证和 RBAC 权限校验
 - 活动记录新增、编辑、删除、分类筛选和分页列表
 - CarbonFactor 按地区与分类匹配并自动计算 `carbon_value`
+- 排放因子版本管理：同一分类/子类型/地区按生效日期维护多版本，活动按记录日期自动选取当时生效的版本
 - 仪表盘展示今日、本周、本月碳排放和趋势图
 - 目标管理展示目标完成进度和到期区间
 - 排行榜按地区和时间段查看用户低碳排名
@@ -120,7 +121,16 @@ npm run dev
 - User：`database/init.sql` → `backend/src/models/user.ts` → `backend/src/services/userService.ts` → `backend/src/controllers/userController.ts` → `backend/src/routes/users.ts` → `frontend/src/api/user.ts` → `frontend/src/stores/userStore.ts` → `frontend/src/pages/Profile.tsx`
 - Activity：`database/init.sql` → `backend/src/models/activity.ts` → `backend/src/services/activityService.ts` → `backend/src/controllers/activityController.ts` → `backend/src/routes/activities.ts` → `frontend/src/api/activity.ts` → `frontend/src/stores/activityStore.ts` → `frontend/src/pages/Activities.tsx`
 - Goal：`database/init.sql` → `backend/src/models/goal.ts` → `backend/src/services/goalService.ts` → `backend/src/controllers/goalController.ts` → `backend/src/routes/goals.ts` → `frontend/src/api/goal.ts` → `frontend/src/stores/goalStore.ts` → `frontend/src/pages/Goals.tsx`
-- CarbonFactor：`database/init.sql` → `backend/src/models/carbonFactor.ts` → `backend/src/services/factorService.ts` → `backend/src/controllers/factorController.ts` → `backend/src/routes/factors.ts` → `frontend/src/api/factor.ts` → `frontend/src/pages/Activities.tsx`
+- CarbonFactor：`database/init.sql` → `backend/src/models/carbonFactor.ts` → `backend/src/services/factorService.ts` → `backend/src/controllers/factorController.ts` → `backend/src/routes/factors.ts` → `frontend/src/api/factor.ts` → `frontend/src/stores/factorStore.ts` → `frontend/src/pages/Factors.tsx`
+
+## 排放因子版本管理规则
+
+- 因子按 `(category, sub_type, region)` 归为同一套，每套可维护多个版本，版本由 `effective_from`（生效日期）区分。
+- 新版本从管理员填写的日期开始使用，旧版本的结束日期自动算为下一版本生效日的前一天；最新版本结束日期为"至今"。
+- 同一套因子同一天不允许重复建版本，数据库有唯一约束 `uk_factor_version (category, sub_type, region, effective_from)`，后端返回 `FACTOR_VERSION_DUPLICATE`。
+- 活动保存（含补录）或改期、改分类时，按 `record_date` 选取 `effective_from <= record_date` 的最新版本重新计算 `carbon_value` 并回填 `factor_id`。
+- 记录日期早于该套因子首个版本（没有任何可用版本）时拒绝写入并返回 `FACTOR_NOT_FOUND`，更新场景下先查版本再落库，原活动记录保持不变。
+- `/factors` 列表展示每个版本的生效开始、生效结束（至今）与因子数值；活动卡片展示本次计算采用的因子值与该版本生效日期。
 
 ## 横切关注点
 
@@ -135,7 +145,7 @@ npm run dev
 - 后端定义：`backend/src/constants/activity.ts`
 - 后端引用：`backend/src/constants/errorCodes.ts`、`backend/src/constants/logTemplates.ts`、`backend/src/models/activity.ts`、`backend/src/models/carbonFactor.ts`、`backend/src/services/activityService.ts`、`backend/src/services/factorService.ts`、`backend/src/routes/activities.ts`、`backend/src/routes/factors.ts`
 - 前端定义：`frontend/src/constants/activity.ts`
-- 前端引用：`frontend/src/constants/errorCodes.ts`、`frontend/src/constants/messages.ts`、`frontend/src/types/entities.ts`、`frontend/src/api/activity.ts`、`frontend/src/api/factor.ts`、`frontend/src/stores/activityStore.ts`、`frontend/src/components/common/CategoryBadge.tsx`、`frontend/src/components/common/ActivityCard.tsx`、`frontend/src/components/common/CarbonTrendChart.tsx`、`frontend/src/pages/Activities.tsx`、`frontend/src/pages/Ranking.tsx`、`frontend/src/utils/carbonCalculator.ts`、`frontend/src/utils/formatters.ts`
+- 前端引用：`frontend/src/constants/errorCodes.ts`、`frontend/src/constants/messages.ts`、`frontend/src/types/entities.ts`、`frontend/src/api/activity.ts`、`frontend/src/api/factor.ts`、`frontend/src/stores/activityStore.ts`、`frontend/src/stores/factorStore.ts`、`frontend/src/components/common/CategoryBadge.tsx`、`frontend/src/components/common/ActivityCard.tsx`、`frontend/src/components/common/CarbonTrendChart.tsx`、`frontend/src/pages/Activities.tsx`、`frontend/src/pages/Factors.tsx`、`frontend/src/pages/Ranking.tsx`、`frontend/src/utils/carbonCalculator.ts`、`frontend/src/utils/formatters.ts`
 
 ### GoalStatus
 

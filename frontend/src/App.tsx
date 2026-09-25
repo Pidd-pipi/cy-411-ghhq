@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Form, Input, Layout, Menu, Modal, Space, Typography } from 'antd';
-import { AuditOutlined, BarChartOutlined, FlagOutlined, LogoutOutlined, OrderedListOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
-import { useAuthStore } from './stores/authStore';
+import { AuditOutlined, BarChartOutlined, CloudServerOutlined, FlagOutlined, LogoutOutlined, OrderedListOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';import { useAuthStore } from './stores/authStore';
 import { GlobalErrorBoundary } from './components/common/GlobalErrorBoundary';
 import { requireRole } from './router/guards';
 
@@ -12,6 +11,7 @@ const navItems = [
   { key: '/goals', icon: <FlagOutlined />, label: '目标' },
   { key: '/ranking', icon: <TeamOutlined />, label: '排行' },
   { key: '/profile', icon: <UserOutlined />, label: '个人' },
+  { key: '/factors', icon: <CloudServerOutlined />, label: '因子', admin: true },
   { key: '/audit', icon: <AuditOutlined />, label: '审计', admin: true }
 ];
 

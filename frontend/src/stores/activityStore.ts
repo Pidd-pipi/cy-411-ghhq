@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { createActivity, fetchActivities, fetchActivitySummary, ActivityPayload } from '../api/activity';
+import { createActivity, fetchActivities, fetchActivitySummary, updateActivity, ActivityPayload } from '../api/activity';
 import { ActivityCategory } from '../constants/activity';
 import { Activity } from '../types/entities';
 
@@ -11,6 +11,7 @@ interface ActivityStore {
   load: (filters?: { category?: ActivityCategory; start?: string; end?: string }) => Promise<void>;
   loadSummary: (range: { start: string; end: string }) => Promise<void>;
   add: (payload: ActivityPayload) => Promise<void>;
+  update: (id: number, payload: Partial<ActivityPayload>) => Promise<void>;
 }
 
 export const useActivityStore = create<ActivityStore>((set, get) => ({
@@ -29,6 +30,10 @@ export const useActivityStore = create<ActivityStore>((set, get) => ({
   },
   async add(payload) {
     await createActivity(payload);
+    await get().load();
+  },
+  async update(id, payload) {
+    await updateActivity(id, payload);
     await get().load();
   }
 }));
