@@ -49,7 +49,8 @@ export class ActivityService {
       throw new AppError(ErrorCodes.ACTIVITY_CATEGORY_INVALID, `Activity[id=0] create failed: category invalid`);
     }
     const user = await this.userService.findById(userId);
-    const factor = await this.factorService.findMatching(input.category, input.subType, user.region);
+    const recordDate = dayjs(input.recordDate).format('YYYY-MM-DD');
+    const factor = await this.factorService.findMatching(input.category, input.subType, user.region, recordDate);
     const carbonValue = calculateCarbonValue({ category: input.category, amount: Number(input.amount), factorValue: Number(factor.factorValue) });
     const activity = this.activityRepo.create({
       userId,
@@ -59,7 +60,7 @@ export class ActivityService {
       amount: String(input.amount),
       unit: input.unit,
       carbonValue: String(carbonValue),
-      recordDate: dayjs(input.recordDate).format('YYYY-MM-DD'),
+      recordDate,
       note: input.note || null
     });
     const saved = await this.activityRepo.save(activity);
@@ -77,8 +78,9 @@ export class ActivityService {
     const nextCategory = input.category ?? activity.category;
     const nextSubType = input.subType ?? activity.subType;
     const nextAmount = Number(input.amount ?? activity.amount);
+    const nextRecordDate = input.recordDate ? dayjs(input.recordDate).format('YYYY-MM-DD') : activity.recordDate;
     const user = await this.userService.findById(userId);
-    const factor = await this.factorService.findMatching(nextCategory, nextSubType, user.region);
+    const factor = await this.factorService.findMatching(nextCategory, nextSubType, user.region, nextRecordDate);
     const carbonValue = calculateCarbonValue({ category: nextCategory, amount: nextAmount, factorValue: Number(factor.factorValue) });
     activity.category = nextCategory;
     activity.subType = nextSubType;
@@ -86,7 +88,7 @@ export class ActivityService {
     activity.unit = input.unit ?? activity.unit;
     activity.factorId = Number(factor.id);
     activity.carbonValue = String(carbonValue);
-    activity.recordDate = input.recordDate ? dayjs(input.recordDate).format('YYYY-MM-DD') : activity.recordDate;
+    activity.recordDate = nextRecordDate;
     activity.note = input.note ?? activity.note;
     const saved = await this.activityRepo.save(activity);
     logTemplate('info', 'ACTIVITY_UPDATE_SUCCESS', { id: saved.id, carbonValue });

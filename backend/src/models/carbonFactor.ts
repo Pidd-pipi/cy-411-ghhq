@@ -22,6 +22,12 @@ export class CarbonFactor {
   @Column({ length: 64 })
   region!: string;
 
+  @Column({ name: 'effective_from', type: 'date' })
+  effectiveFrom!: string;
+
+  @Column({ name: 'effective_to', type: 'date', nullable: true })
+  effectiveTo!: string | null;
+
   @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
   updatedAt!: Date;
 

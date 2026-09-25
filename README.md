@@ -26,6 +26,9 @@ docker compose down
 - 用户注册、登录、JWT 认证和 RBAC 权限校验
 - 活动记录新增、编辑、删除、分类筛选和分页列表
 - CarbonFactor 按地区与分类匹配并自动计算 `carbon_value`
+- CarbonFactor 版本管理：新版本自 `effective_from` 起生效，旧版本自动于前一日截止，同一 `category + sub_type + region + effective_from` 不可重复
+- 活动按 `record_date` 选取当时有效的因子版本，补录或改期后重新匹配并计算，无可用版本时拒绝写入并保留原记录
+- 因子列表展示各版本有效日期与数值，活动卡片展示采用的因子值与生效日期
 - 仪表盘展示今日、本周、本月碳排放和趋势图
 - 目标管理展示目标完成进度和到期区间
 - 排行榜按地区和时间段查看用户低碳排名
@@ -120,7 +123,7 @@ npm run dev
 - User：`database/init.sql` → `backend/src/models/user.ts` → `backend/src/services/userService.ts` → `backend/src/controllers/userController.ts` → `backend/src/routes/users.ts` → `frontend/src/api/user.ts` → `frontend/src/stores/userStore.ts` → `frontend/src/pages/Profile.tsx`
 - Activity：`database/init.sql` → `backend/src/models/activity.ts` → `backend/src/services/activityService.ts` → `backend/src/controllers/activityController.ts` → `backend/src/routes/activities.ts` → `frontend/src/api/activity.ts` → `frontend/src/stores/activityStore.ts` → `frontend/src/pages/Activities.tsx`
 - Goal：`database/init.sql` → `backend/src/models/goal.ts` → `backend/src/services/goalService.ts` → `backend/src/controllers/goalController.ts` → `backend/src/routes/goals.ts` → `frontend/src/api/goal.ts` → `frontend/src/stores/goalStore.ts` → `frontend/src/pages/Goals.tsx`
-- CarbonFactor：`database/init.sql` → `backend/src/models/carbonFactor.ts` → `backend/src/services/factorService.ts` → `backend/src/controllers/factorController.ts` → `backend/src/routes/factors.ts` → `frontend/src/api/factor.ts` → `frontend/src/pages/Activities.tsx`
+- CarbonFactor：`database/init.sql` → `backend/src/models/carbonFactor.ts` → `backend/src/services/factorService.ts` → `backend/src/controllers/factorController.ts` → `backend/src/routes/factors.ts` → `frontend/src/api/factor.ts` → `frontend/src/pages/Factors.tsx` → `frontend/src/pages/Activities.tsx`
 
 ## 横切关注点
 

@@ -14,6 +14,10 @@ export function formatCarbon(value: number | string | undefined) {
   return `${Number(value || 0).toFixed(2)} kg CO2e`;
 }
 
+export function formatFactor(value: number | string | undefined, unit?: string) {
+  return `${Number(value || 0).toFixed(4)} kg CO2e/${unit || '-'}`;
+}
+
 export function formatGoalStatus(status: GoalStatus) {
   return GOAL_STATUS_LABELS[status] || status;
 }

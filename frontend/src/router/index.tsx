@@ -5,6 +5,7 @@ import { Activities } from '../pages/Activities';
 import { Goals } from '../pages/Goals';
 import { Ranking } from '../pages/Ranking';
 import { Profile } from '../pages/Profile';
+import { Factors } from '../pages/Factors';
 import { AuditLog } from '../pages/AuditLog';
 
 export const router = createBrowserRouter([
@@ -18,6 +19,7 @@ export const router = createBrowserRouter([
       { path: 'goals', element: <Goals /> },
       { path: 'ranking', element: <Ranking /> },
       { path: 'profile', element: <Profile /> },
+      { path: 'factors', element: <Factors /> },
       { path: 'audit', element: <AuditLog /> }
     ]
   }
